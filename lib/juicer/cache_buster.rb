@@ -65,7 +65,7 @@ module Juicer
   # License::   BSD
   #
   module CacheBuster
-    DEFAULT_PARAMETER = "jcb"
+    DEFAULT_PARAMETER = "fsv"
 
     #
     # Creates a unique file name for every revision to the files contents.
@@ -85,8 +85,9 @@ module Juicer
       file = self.clean(file, parameter)
       filename = file.split("?").first
       raise ArgumentError.new("#{file} could not be found") unless File.exists?(filename)
-      mtime = File.mtime(filename).to_i
-
+      mtime = `sha1sum #{filename} | awk '{print $1}'`
+      mtime = mtime.strip()
+      
       if type == :soft
         parameter = "#{parameter}=".sub(/^=$/, '')
         return "#{file}#{file.index('?') ? '&' : '?'}#{parameter}#{mtime}"
